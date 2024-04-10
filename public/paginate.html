@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>All Bookings</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+  <body>
+    <table id="bookings">
+
+    </table>
+    <br>
+    <div id="pagination">
+
+    </div>
+    <script>
+        // an async function to fetch bookings and metadata from the backend
+        async function getBookings(page, perPage) {
+            // fetch the bookings
+            const response = await fetch(`/bookings?page=${page}&perPage=${perPage}`);
+            // convert the response to json
+            const json = await response.json();
+            // return the json
+            // alert(1)
+            return json;
+        }
+        // getBookings(3,5)
+        // a function to render the bookings
+        function renderBookings(bookings) {
+            // get the table element
+            const table = document.getElementById('bookings');
+            // clear the table
+            table.innerHTML = '';
+            // loop over the bookings
+            for (let booking of bookings) {
+                // create a new row
+                const row = document.createElement('tr');
+                // add the booking email to the row
+                row.innerHTML = `<td>${booking.email}</td>`;
+                // add the booking numTickets to the row
+                row.innerHTML += `<td>${booking.numTickets}</td>`;
+                // append the row to the table
+                table.appendChild(row);
+            }
+        }
+        // a function to render the pagination links
+        function renderPagination(page, perPage, total) {
+            // get the pagination element
+            const pagination = document.getElementById('pagination');
+            // clear the pagination
+            pagination.innerHTML = '';
+            // loop over the pages
+            for (let i = 1; i <= Math.ceil(total / perPage); i++) {
+                // if the page is the current page
+                if (i === page) {
+                    // add a span element with the page number
+                    pagination.innerHTML += `<span>${i}</span>`;
+                } else {
+                    // add an anchor element with the page number
+                    pagination.innerHTML += ` [<a href="#" onclick="renderPage(${i}, ${perPage})">${i}</a>] `;
+                }
+            }
+        }
+        // an async function to render the page
+        async function renderPage(page, perPage) {
+        // get the bookings data
+        const data = await getBookings(page, perPage);
+    
+        // render the bookings
+        await renderBookings(data.bookings);
+    
+        // render the pagination links
+        await renderPagination(data.page, data.perPage, data.total);
+        }
+        const urlParams = new URLSearchParams(window.location.search);
+        renderPage(1, urlParams.get("perPage"))
+        
+    
+    </script>
+  </body>
+</html>
+
